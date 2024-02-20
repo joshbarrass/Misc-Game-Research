@@ -1,0 +1,27 @@
+name: Build Blender addons
+
+on:
+  pull_request:
+  push:
+    branches: [ main ]
+
+jobs:
+  windows-build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-2022]
+        python-version: ['3.10.9']
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Build gsutil using distutils
+      run: |
+        cd ${{github.workspace}}\PS2\Common\gsutil
+        python setup.py build
+        dir
