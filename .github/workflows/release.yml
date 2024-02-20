@@ -23,5 +23,5 @@ jobs:
     - name: Build gsutil using distutils
       run: |
         cd ${{github.workspace}}\PS2\Common\gsutil
-        python setup.py build
+        python setup.py build_ext --inplace
         dir
