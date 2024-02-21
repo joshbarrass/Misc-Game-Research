@@ -17,7 +17,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - uses: suisei-cn/actions-download-file@v1.6.0
-      id: swigwin-zip  # Remember to give an ID if you need the output filename
+      id: download-swigwin-zip  # Remember to give an ID if you need the output filename
       name: Download swigwin-4.2.0.zip
       with:
         url: "https://sourceforge.net/projects/swig/files/swigwin/swigwin-4.2.0/swigwin-4.2.0.zip"
@@ -25,7 +25,7 @@ jobs:
     - name: Extract swigwin-4.2.0.zip
       run: |
         cd C:\swig
-        7z x ${{ steps.downloadfile.outputs.filename }}
+        7z x ${{ steps.download-swigwin-zip.outputs.filename }}
     - name: Verify SWIG
       run: C:\swig\swigwin-4.2.0\swig.exe -version
     - name: Set up Python ${{ matrix.python-version }}
