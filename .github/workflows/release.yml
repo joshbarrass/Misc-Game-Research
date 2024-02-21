@@ -62,21 +62,16 @@ jobs:
         name: "win64-3.10.9"
     - name: Collate build artefacts in gsutil
       run: |
-        move win64-3.7/gsutil-win64-3.7-build.zip ${{github.workspace}}\PS2\Common\gsutil
-        move win64-3.10.9/gsutil-win64-3.10.9-build.zip ${{github.workspace}}\PS2\Common\gsutil
-        cd "${{github.workspace}}\PS2\Common\gsutil"
-        7z x gsutil-win64-3.7-build.zip
-        7z x gsutil-win64-3.10.9-build.zip
-        del *.zip
+        find -iname "win64-*/gsutil-*.zip" -exec mv {} ${{github.workspace}}/PS2/Common/gsutil \;
+        cd "${{github.workspace}}/PS2/Common/gsutil"
+        find -iname "*.zip" -exec unzip {} \;
+        rm *.zip
     - name: Construct addons
       run: |
-        cd "${{github.workspace}}\PS2\Silent Hill 2+3\Blender\addons"
-        robocopy io_sh2_sh3 C:\io_sh2_sh3 /e
-        cd C:\
-        7z a io_sh2_sh3.zip io_sh2_sh3
-        move io_sh2_sh3.zip "${{github.workspace}}\io_sh2_sh3.zip"
+        cd "${{github.workspace}}/PS2/Silent Hill 2+3/Blender/addons"
+        zip -r "${{github.workspace}}\io_sh2_sh3.zip" io_sh2_sh3/
     - name: Create Release
       uses: softprops/action-gh-release@v0.1.14
       with:
-        files: "${{github.workspace}}\\io_sh2_sh3.zip"
+        files: "${{github.workspace}}/io_sh2_sh3.zip"
         fail_on_unmatched_files: true
