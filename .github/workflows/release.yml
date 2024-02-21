@@ -16,13 +16,18 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - uses: engineerd/configurator@v0.0.9
+    - uses: suisei-cn/actions-download-file@v1.6.0
+      id: swigwin-zip  # Remember to give an ID if you need the output filename
+      name: Download swigwin-4.2.0.zip
       with:
-        name: "swig.exe"
         url: "https://sourceforge.net/projects/swig/files/swigwin/swigwin-4.2.0/swigwin-4.2.0.zip"
-        pathInArchive: "swigwin-4.2.0/swig.exe"
+        target: "C:\swig"
+    - name: Extract swigwin-4.2.0.zip
+      run: |
+        cd C:\swig
+        7z x ${{ steps.downloadfile.outputs.filename }}
     - name: Verify SWIG
-      run: swig.exe -version
+      run: C:\swig\swigwin-4.2.0\swig.exe -version
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
       with:
@@ -30,6 +35,6 @@ jobs:
     - name: Build gsutil using distutils
       run: |
         cd ${{github.workspace}}\PS2\Common\gsutil
-        swig -python -c++ gsutil.i
+        C:\swig\swigwin-4.2.0\swig.exe -python -c++ gsutil.i
         python setup.py build_ext --inplace
         dir
