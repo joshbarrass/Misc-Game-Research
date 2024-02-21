@@ -21,7 +21,7 @@ jobs:
       name: Download swigwin-4.2.0.zip
       with:
         url: "https://sourceforge.net/projects/swig/files/swigwin/swigwin-4.2.0/swigwin-4.2.0.zip"
-        target: "C:\swig"
+        target: "C:\\swig"
     - name: Extract swigwin-4.2.0.zip
       run: |
         cd C:\swig
