@@ -63,10 +63,8 @@ jobs:
         name: "win64-3.10.9"
     - name: Collate build artefacts in gsutil
       run: |
-        find -iname "win64-*/gsutil-*.zip" -exec mv {} ${{github.workspace}}/PS2/Common/gsutil \;
-        cd "${{github.workspace}}/PS2/Common/gsutil"
-        find -iname "*.zip" -exec unzip {} \;
-        rm *.zip
+        find ${{github.workspace}} -iname "win64-*/gsutil-*.zip" -exec mv {} ${{github.workspace}}/PS2/Common/gsutil \;
+        cd "${{github.workspace}}/PS2/Common/gsutil" && ls && find -iname "*.zip" -exec unzip {} \; && rm *.zip
     - name: Construct addons
       run: |
         cd "${{github.workspace}}/PS2/Silent Hill 2+3/Blender/addons"
