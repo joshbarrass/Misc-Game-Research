@@ -38,3 +38,19 @@ jobs:
         C:\swig\swigwin-4.2.0\swig.exe -python -c++ gsutil.i
         python setup.py build_ext --inplace
         dir
+    - name: Construct addons
+      run: |
+        cd ${{github.workspace}}\PS2\Common\gsutil
+        7z a ..\readutil\io_sh2_sh3.zip .\*
+        cd ${{github.workspace}}\PS2\Common\readutil
+        7z a io_sh2_sh3.zip .\readutil.py
+        move io_sh2_sh3.zip "${{github.workspace}}\PS2\Silent Hill 2+3\Blender\addons\io_sh2_sh3\io_sh2_sh3.zip"
+        cd "${{github.workspace}}\PS2\Silent Hill 2+3\Blender\addons\io_sh2_sh3\io_sh2_sh3.zip"
+        7z a io_sh2_sh3.zip __init__.py export_pack.py import_anm.py import_dds.py import_map.py import_mdl.py import_pack.py vu.py
+        move io_sh2_sh3.zip "${{github.workspace}}\io_sh2_sh3.zip"
+    - name: Create Release
+      uses: softprops/action-gh-release@v0.1.14
+      with:
+        files: "${{github.workspace}}\io_sh2_sh3.zip"
+        fail_on_unmatched_files: true
+        prerelease: true
