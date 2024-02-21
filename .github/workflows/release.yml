@@ -38,16 +38,45 @@ jobs:
         C:\swig\swigwin-4.2.0\swig.exe -python -c++ gsutil.i
         python setup.py build_ext --inplace
         dir
+    - name: Zip compiled extension
+      run: |
+        cd "${{github.workspace}}\PS2\Common\gsutil"
+        7z a "${{github.workspace}}\gsutil-win64-${{ matrix.python-version }}-build.zip" gsutil.py *.pyd
+    - name: Upload compiled extension
+      uses: actions/upload-artifact@v1
+      with:
+        name: "win64-${{ matrix.python-version }}"
+        path: "${{github.workspace}}\\gsutil-win64-${{ matrix.python-version }}-build.zip"
+
+  create-release:
+    needs: [windows-build]
+    runs-on: "ubuntu-22.04"
+    steps:
+    - name: Download Windows Python 3.7 build
+      uses: actions/download-artifact@v1
+      with:
+        name: "win64-3.7"
+    - name: Download Windows Python 3.10.9 build
+      uses: actions/download-artifact@v1
+      with:
+        name: "win64-3.10.9"
+    - name: Collate build artefacts in gsutil
+      run: |
+        move win64-3.7/gsutil-win64-3.7-build.zip ${{github.workspace}}\PS2\Common\gsutil
+        move win64-3.10.9/gsutil-win64-3.10.9-build.zip ${{github.workspace}}\PS2\Common\gsutil
+        cd "${{github.workspace}}\PS2\Common\gsutil"
+        7z x gsutil-win64-3.7-build.zip
+        7z x gsutil-win64-3.10.9-build.zip
+        del *.zip
     - name: Construct addons
       run: |
         cd "${{github.workspace}}\PS2\Silent Hill 2+3\Blender\addons"
         robocopy io_sh2_sh3 C:\io_sh2_sh3 /e
         cd C:\
         7z a io_sh2_sh3.zip io_sh2_sh3
-        move io_sh2_sh3.zip "${{github.workspace}}\io_sh2_sh3_py${{ matrix.python-version }}_win64.zip"
+        move io_sh2_sh3.zip "${{github.workspace}}\io_sh2_sh3.zip"
     - name: Create Release
       uses: softprops/action-gh-release@v0.1.14
       with:
-        files: "${{github.workspace}}\\io_sh2_sh3_py${{ matrix.python-version }}_win64.zip"
+        files: "${{github.workspace}}\\io_sh2_sh3.zip"
         fail_on_unmatched_files: true
-        prerelease: true
