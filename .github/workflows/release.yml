@@ -63,6 +63,8 @@ jobs:
         name: "win64-3.10.9"
     - name: Collate build artefacts in gsutil
       run: |
+        ls ${{github.workspace}}
+        ls ${{github.workspace}}/win64*
         find ${{github.workspace}} -iname "win64-*/gsutil-*.zip" -exec mv {} ${{github.workspace}}/PS2/Common/gsutil \;
         cd "${{github.workspace}}/PS2/Common/gsutil" && ls && find -iname "*.zip" -exec unzip {} \; && rm *.zip
     - name: Construct addons
