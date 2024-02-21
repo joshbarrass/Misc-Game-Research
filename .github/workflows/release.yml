@@ -18,11 +18,11 @@ jobs:
     - uses: actions/checkout@v2
     - uses: engineerd/configurator@v0.0.9
       with:
-        name: swig
-        url: https://sourceforge.net/projects/swig/files/swigwin/swigwin-4.2.0/swigwin-4.2.0.zip
-        pathInArchive: swigwin-4.2.0/swig.exe
+        name: "swig.exe"
+        url: "https://sourceforge.net/projects/swig/files/swigwin/swigwin-4.2.0/swigwin-4.2.0.zip"
+        pathInArchive: "swigwin-4.2.0/swig.exe"
     - name: Verify SWIG
-      run: swig -version
+      run: swig.exe -version
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
       with:
