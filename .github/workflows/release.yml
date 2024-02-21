@@ -41,7 +41,9 @@ jobs:
     - name: Construct addons
       run: |
         cd "${{github.workspace}}\PS2\Silent Hill 2+3\Blender\addons"
-        7z a -l io_sh2_sh3.zip io_sh2_sh3
+        robocopy io_sh2_sh3 C:\io_sh2_sh3 /e
+        cd C:\
+        7z a io_sh2_sh3.zip io_sh2_sh3
         move io_sh2_sh3.zip "${{github.workspace}}\io_sh2_sh3_py${{ matrix.python-version }}_win64.zip"
     - name: Create Release
       uses: softprops/action-gh-release@v0.1.14
