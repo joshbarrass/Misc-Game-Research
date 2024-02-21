@@ -47,10 +47,10 @@ jobs:
         move io_sh2_sh3.zip "${{github.workspace}}\PS2\Silent Hill 2+3\Blender\addons\io_sh2_sh3\io_sh2_sh3.zip"
         cd "${{github.workspace}}\PS2\Silent Hill 2+3\Blender\addons\io_sh2_sh3"
         7z a io_sh2_sh3.zip __init__.py export_pack.py import_anm.py import_dds.py import_map.py import_mdl.py import_pack.py vu.py
-        move io_sh2_sh3.zip "${{github.workspace}}\io_sh2_sh3.zip"
+        move io_sh2_sh3.zip "${{github.workspace}}\io_sh2_sh3_py${{ matrix.python-version }}_win64.zip"
     - name: Create Release
       uses: softprops/action-gh-release@v0.1.14
       with:
-        files: "${{github.workspace}}\\io_sh2_sh3.zip"
+        files: "${{github.workspace}}\io_sh2_sh3_py${{ matrix.python-version }}_win64.zip"
         fail_on_unmatched_files: true
         prerelease: true
