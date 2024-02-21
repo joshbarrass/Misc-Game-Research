@@ -52,6 +52,7 @@ jobs:
     needs: [windows-build]
     runs-on: "ubuntu-22.04"
     steps:
+    - uses: actions/checkout@v2
     - name: Download Windows Python 3.7 build
       uses: actions/download-artifact@v1
       with:
