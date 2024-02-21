@@ -51,6 +51,6 @@ jobs:
     - name: Create Release
       uses: softprops/action-gh-release@v0.1.14
       with:
-        files: "${{github.workspace}}\io_sh2_sh3_py${{ matrix.python-version }}_win64.zip"
+        files: "${{github.workspace}}\\io_sh2_sh3_py${{ matrix.python-version }}_win64.zip"
         fail_on_unmatched_files: true
         prerelease: true
