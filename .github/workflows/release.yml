@@ -63,14 +63,12 @@ jobs:
         name: "win64-3.10.9"
     - name: Collate build artefacts in gsutil
       run: |
-        ls ${{github.workspace}}
-        ls ${{github.workspace}}/win64*
-        find ${{github.workspace}} -iname "win64-*/gsutil-*.zip" -exec mv {} ${{github.workspace}}/PS2/Common/gsutil \;
-        cd "${{github.workspace}}/PS2/Common/gsutil" && ls && find -iname "*.zip" -exec unzip {} \; && rm *.zip
+        find ${{github.workspace}} -iwholename "*/win64-*/gsutil-*.zip" -exec mv {} ${{github.workspace}}/PS2/Common/gsutil \;
+        cd "${{github.workspace}}/PS2/Common/gsutil" && ls && find -iname "gsutil-*.zip" -exec unzip {} \; -exec rm {} \;
     - name: Construct addons
       run: |
         cd "${{github.workspace}}/PS2/Silent Hill 2+3/Blender/addons"
-        zip -r "${{github.workspace}}\io_sh2_sh3.zip" io_sh2_sh3/
+        zip -r "${{github.workspace}}/io_sh2_sh3.zip" io_sh2_sh3/
     - name: Create Release
       uses: softprops/action-gh-release@v0.1.14
       with:
