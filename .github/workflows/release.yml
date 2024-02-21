@@ -16,6 +16,9 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+    - uses: mmomtchev/setup-swig@v1
+    - name: Verify
+      run: swig -version
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
       with:
@@ -23,5 +26,6 @@ jobs:
     - name: Build gsutil using distutils
       run: |
         cd ${{github.workspace}}\PS2\Common\gsutil
+        swig -python -c++ gsutil.i
         python setup.py build_ext --inplace
         dir
