@@ -1,9 +1,9 @@
 name: Build Blender addons
 
 on:
-  pull_request:
   push:
-    branches: [ main ]
+    tags:
+      - "*"
 
 jobs:
   windows-build:
