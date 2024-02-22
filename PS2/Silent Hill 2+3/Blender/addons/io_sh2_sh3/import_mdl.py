@@ -198,15 +198,17 @@ class MdlParser:
     if model_header.morph_base_vertex_count <= 0 or model_header.morph_data_count <= 0:
       return
     f.seek(model_header.morph_base_vertex_offs)
-    base_pos_int16 = [f.read_nint16(3) for _ in range(
-        model_header.morph_base_vertex_count)]
-    if f.tell() % 0x10 > 0:
-      f.skip(0x10 - (f.tell() % 0x10))
+
+    base_pos_int16 = []
     base_norm_int16 = []
-    has_normals = f.tell() < model_header.morph_data_offs
-    if has_normals:
-      base_norm_int16 = [f.read_nint16(3) for _ in range(
-          model_header.morph_base_vertex_count)]
+    
+    # has_normals = f.tell() < model_header.morph_data_offs
+    has_normals = model_header.morph_data_offs > f.tell() + model_header.morph_base_vertex_count * 3 * 2 + 1
+
+    for _ in range(model_header.morph_base_vertex_count):
+      base_pos_int16.append(f.read_nint16(3))
+      if has_normals:
+        base_norm_int16.append(f.read_nint16(3))
 
     f.seek(model_header.morph_data_offs)
     morph_target_desc = [f.read_nuint32(
@@ -215,26 +217,22 @@ class MdlParser:
       pos_int16 = base_pos_int16[:]
       norm_int16 = base_norm_int16[:]
 
-      offs += model_header.offs
-      f.seek(offs)
+      f.seek(model_header.offs + offs)
       for _ in range(vertex_count):
         delta_xyz = f.read_nint16(3)
+        if has_normals:
+          norm_delta_xyz = f.read_nint16(3)
         vertex_index = f.read_uint16()
         pos_int16[vertex_index] = (
             base_pos_int16[vertex_index][0] + delta_xyz[0],
             base_pos_int16[vertex_index][1] + delta_xyz[1],
             base_pos_int16[vertex_index][2] + delta_xyz[2]
         )
-      if has_normals:
-        if f.tell() % 0x10 > 0:
-          f.skip(0x10 - (f.tell() % 0x10))
-        for _ in range(vertex_count):
-          delta_xyz = f.read_nint16(3)
-          vertex_index = f.read_uint16()
+        if has_normals:
           norm_int16[vertex_index] = (
-              base_norm_int16[vertex_index][0] + delta_xyz[0],
-              base_norm_int16[vertex_index][1] + delta_xyz[1],
-              base_norm_int16[vertex_index][2] + delta_xyz[2]
+            base_norm_int16[vertex_index][0] + norm_delta_xyz[0],
+            base_norm_int16[vertex_index][1] + norm_delta_xyz[1],
+            base_norm_int16[vertex_index][2] + norm_delta_xyz[2]
           )
 
       self.morph_targets.append((pos_int16, norm_int16))
