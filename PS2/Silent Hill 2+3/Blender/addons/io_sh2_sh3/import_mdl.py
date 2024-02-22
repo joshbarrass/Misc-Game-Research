@@ -192,7 +192,10 @@ class MdlParser:
     # bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
 
   def parse_morph_targets(self, f, model_header):
-    if not (model_header.morph_base_vertex_count or model_header.morph_data_count):
+    # we rely on both of these being > 0 (we need vertex data, and
+    # nothing will actually happen if morph_data_count is 0); just
+    # give up now if that isn't the case
+    if model_header.morph_base_vertex_count <= 0 or model_header.morph_data_count <= 0:
       return
     f.seek(model_header.morph_base_vertex_offs)
     base_pos_int16 = [f.read_nint16(3) for _ in range(
