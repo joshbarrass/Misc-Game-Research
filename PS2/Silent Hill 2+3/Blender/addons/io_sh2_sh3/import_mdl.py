@@ -219,7 +219,7 @@ class MdlParser:
       f.seek(offs)
       for _ in range(vertex_count):
         delta_xyz = f.read_nint16(3)
-        vertex_index = f.read_int16()
+        vertex_index = f.read_uint32()
         pos_int16[vertex_index] = (
             base_pos_int16[vertex_index][0] + delta_xyz[0],
             base_pos_int16[vertex_index][1] + delta_xyz[1],
@@ -230,7 +230,7 @@ class MdlParser:
           f.skip(0x10 - (f.tell() % 0x10))
         for _ in range(vertex_count):
           delta_xyz = f.read_nint16(3)
-          vertex_index = f.read_int16()
+          vertex_index = f.read_uint32()
           norm_int16[vertex_index] = (
               base_norm_int16[vertex_index][0] + delta_xyz[0],
               base_norm_int16[vertex_index][1] + delta_xyz[1],
