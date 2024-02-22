@@ -104,12 +104,12 @@ class MdlParser:
 
     self.parse_morph_targets(f, model_header)
     self.parse_armature(f, model_header)
-    self.parse_helper_armature(f, model_header)
-    self.parse_submeshes(f, model_header.submesh_count,
-                         model_header.submesh_start_offs, blend=False)
-    self.parse_submeshes(f, model_header.submesh_blend_count,
-                         model_header.submesh_blend_start_offs, blend=True)
-    self.parse_textures(f, image_count, image_sector_offs, model_header)
+    # self.parse_helper_armature(f, model_header)
+    # self.parse_submeshes(f, model_header.submesh_count,
+                         # model_header.submesh_start_offs, blend=False)
+    # self.parse_submeshes(f, model_header.submesh_blend_count,
+                         # model_header.submesh_blend_start_offs, blend=True)
+    # self.parse_textures(f, image_count, image_sector_offs, model_header)
 
     # Finalize the scene.
     self.armature.rotation_euler = (-math.pi / 2, 0, math.pi)
