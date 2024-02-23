@@ -14,7 +14,18 @@ import mathutils
 import os
 import struct
 
-from .gsutil import gsutil
+try:
+  from .gsutil import gsutil
+  GSUTIL_ENABLED = True
+except ImportError:
+  GSUTIL_ENABLED = False
+  bpy.context.window_manager.popup_menu(
+    lambda self, ctx: self.layout.label(
+      text="gsutil is not available for this platform; textures cannot be loaded for SH2 models."
+    ),
+    title="Warning: gsutil not available",
+    icon='ERROR'
+  )
 from .readutil import readutil
 from . import vu
 
@@ -109,7 +120,11 @@ class MdlParser:
                          model_header.submesh_start_offs, blend=False)
     self.parse_submeshes(f, model_header.submesh_blend_count,
                          model_header.submesh_blend_start_offs, blend=True)
-    self.parse_textures(f, image_count, image_sector_offs, model_header)
+
+    # gsutil is only needed for parsing textures, so we can do
+    # everything else without
+    if GSUTIL_ENABLED:
+      self.parse_textures(f, image_count, image_sector_offs, model_header)
 
     # Finalize the scene.
     self.armature.rotation_euler = (-math.pi / 2, 0, math.pi)
