@@ -175,7 +175,10 @@ class MdlParser:
       bone.matrix = bone_matrix
       if parent_index >= 0:
         bone.parent = armature_data.edit_bones[parent_index]
-      bone.inherit_scale = 'ALIGNED'
+      if bpy.app.version >= (2, 81):
+        bone.inherit_scale = 'ALIGNED'
+      else: # inherit_scale was first added in 2.81, but use_inherit_scale=True seems to work just fine
+        bone.use_inherit_scale = True
 
     bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
 
