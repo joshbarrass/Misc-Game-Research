@@ -10,3 +10,8 @@ See READMEs in respective directories for more details.
 git config core.symlinks true
 git reset --hard
 ````
+
+# Acknowledgements
+
+ - [Original code by Murugo](https://github.com/Murugo/Misc-Game-Research).
+ - Additional understanding of the SH3 MDL format from [code by alanm20](https://github.com/alanm20/SH3_chr).

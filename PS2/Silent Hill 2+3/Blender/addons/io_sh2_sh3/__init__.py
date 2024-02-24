@@ -62,6 +62,27 @@ class ImportMdl2(bpy.types.Operator, ImportHelper):
   def draw(self, context):
     pass
 
+class ImportMdl3(bpy.types.Operator, ImportHelper):
+  """Load a Silent Hill 3 MDL file"""
+  bl_idname = "import_sh3.mdl"
+  bl_label = "Import Silent Hill 3 (PS2) Model (MDL)"
+  bl_options = {"PRESET", "UNDO"}
+
+  filename_ext = ".mdl"
+  filter_glob: StringProperty(default="*.mdl", options={'HIDDEN'})
+
+  def execute(self, context):
+    from . import import_mdl
+
+    keywords = self.as_keywords(ignore=("filter_glob",))
+    keywords["is_sh3"] = True
+    status, msg = import_mdl.load(context, **keywords)
+    if msg:
+      self.report({'ERROR'}, msg)
+    return {status}
+
+  def draw(self, context):
+    pass
 
 class ImportAnmSh2(bpy.types.Operator, ImportHelper):
   """Load a Silent Hill 2 ANM file"""
@@ -408,6 +429,8 @@ class ImportMapSh3(bpy.types.Operator, ImportHelper):
 def menu_func_import(self, context):
   self.layout.operator(ImportMdl2.bl_idname,
                        text="Silent Hill 2 Model (.mdl)")
+  self.layout.operator(ImportMdl3.bl_idname,
+                       text="Silent Hill 3 Model (.mdl)")
   self.layout.operator(ImportAnmSh2.bl_idname,
                        text="Silent Hill 2 Animation Set (.anm)")
   self.layout.operator(ImportAnmSh3.bl_idname,
@@ -424,7 +447,7 @@ def menu_func_export(self, context):
   self.layout.operator(ExportPackSh3.bl_idname, text="Silent Hill 3 Cutscene Pack (.pack)")
 
 
-classes = (ImportMdl2, ImportAnmSh2, ImportAnmSh3,
+classes = (ImportMdl2, ImportMdl3, ImportAnmSh2, ImportAnmSh3,
            ImportPackSh3,  PackTargetSelectorItem, PackTargetSelector_UL_List, PackTargetSelector,
            ImportDdsSh2, DdsObjectSelectorItem, DdsObjectSelector_UL_List, DdsObjectSelector,
            ImportMapSh3, ExportPackSh3, PackExportTargetSelector)

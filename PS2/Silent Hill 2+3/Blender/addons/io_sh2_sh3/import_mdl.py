@@ -102,7 +102,7 @@ class MdlParser:
     self.vif_parser = vu.VifParser()
     self.mat_manager = MaterialManager()
 
-  def parse(self, filepath):
+  def parse(self, filepath, is_sh3=False):
     self.basename = os.path.splitext(os.path.basename(filepath))[0]
     f = readutil.BinaryFileReader(filepath)
 
@@ -113,18 +113,33 @@ class MdlParser:
     model_offs = f.read_uint32()
     model_header = ModelHeader(f, model_offs)
 
-    self.parse_morph_targets(f, model_header)
+    if is_sh3:
+      self.parse_morph_targets_sh3(f, model_header)
+    else:
+      self.parse_morph_targets(f, model_header)
+
     self.parse_armature(f, model_header)
     self.parse_helper_armature(f, model_header)
-    self.parse_submeshes(f, model_header.submesh_count,
-                         model_header.submesh_start_offs, blend=False)
-    self.parse_submeshes(f, model_header.submesh_blend_count,
-                         model_header.submesh_blend_start_offs, blend=True)
 
-    # gsutil is only needed for parsing textures, so we can do
-    # everything else without
-    if GSUTIL_ENABLED:
-      self.parse_textures(f, image_count, image_sector_offs, model_header)
+    # this parser can't yet deal with SH3 submeshes or textures, so
+    # skip it for now if we're importing those
+    if is_sh3:
+      bpy.context.window_manager.popup_menu(
+        lambda self, ctx: self.layout.label(
+          text="This addon cannot yet import SH3 meshes or textures."
+        ),
+        title="Warning: Limited SH3 MDL support",
+        icon='ERROR'
+      )
+    else:
+      self.parse_submeshes(f, model_header.submesh_count,
+                           model_header.submesh_start_offs, blend=False)
+      self.parse_submeshes(f, model_header.submesh_blend_count,
+                           model_header.submesh_blend_start_offs, blend=True)
+      # gsutil is only needed for parsing textures, so we can do
+      # everything else without
+      if GSUTIL_ENABLED:
+        self.parse_textures(f, image_count, image_sector_offs, model_header)
 
     # Finalize the scene.
     self.armature.rotation_euler = (-math.pi / 2, 0, math.pi)
@@ -205,6 +220,52 @@ class MdlParser:
     #   bone.inherit_scale = 'ALIGNED'
 
     # bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+
+  def parse_morph_targets_sh3(self, f, model_header):
+    # we rely on both of these being > 0 (we need vertex data, and
+    # nothing will actually happen if morph_data_count is 0); just
+    # give up now if that isn't the case
+    if model_header.morph_base_vertex_count <= 0 or model_header.morph_data_count <= 0:
+      return
+    f.seek(model_header.morph_base_vertex_offs)
+
+    base_pos_int16 = []
+    base_norm_int16 = []
+    
+    # has_normals = f.tell() < model_header.morph_data_offs
+    has_normals = model_header.morph_data_offs > f.tell() + model_header.morph_base_vertex_count * 3 * 2 + 1
+
+    for _ in range(model_header.morph_base_vertex_count):
+      base_pos_int16.append(f.read_nint16(3))
+      if has_normals:
+        base_norm_int16.append(f.read_nint16(3))
+
+    f.seek(model_header.morph_data_offs)
+    morph_target_desc = [f.read_nuint32(
+        2) for _ in range(model_header.morph_data_count)]
+    for vertex_count, offs in morph_target_desc:
+      pos_int16 = base_pos_int16[:]
+      norm_int16 = base_norm_int16[:]
+
+      f.seek(model_header.offs + offs)
+      for _ in range(vertex_count):
+        delta_xyz = f.read_nint16(3)
+        if has_normals:
+          norm_delta_xyz = f.read_nint16(3)
+        vertex_index = f.read_uint16()
+        pos_int16[vertex_index] = (
+            base_pos_int16[vertex_index][0] + delta_xyz[0],
+            base_pos_int16[vertex_index][1] + delta_xyz[1],
+            base_pos_int16[vertex_index][2] + delta_xyz[2]
+        )
+        if has_normals:
+          norm_int16[vertex_index] = (
+            base_norm_int16[vertex_index][0] + norm_delta_xyz[0],
+            base_norm_int16[vertex_index][1] + norm_delta_xyz[1],
+            base_norm_int16[vertex_index][2] + norm_delta_xyz[2]
+          )
+
+      self.morph_targets.append((pos_int16, norm_int16))
 
   def parse_morph_targets(self, f, model_header):
     # we rely on both of these being > 0 (we need vertex data, and
@@ -570,10 +631,10 @@ class MdlParser:
                                        tex_node.outputs['Alpha'])
 
 
-def load(context, filepath):
+def load(context, filepath, is_sh3=False):
   try:
     parser = MdlParser()
-    parser.parse(filepath)
+    parser.parse(filepath, is_sh3=is_sh3)
   except (MdlImportError) as err:
     return 'CANCELLED', str(err)
 
